@@ -12,8 +12,8 @@ jobs:
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      AWS_REGION: $AWS_REGION
-      #AWS_REGION: "ap-south-1"
+      #AWS_REGION: $AWS_REGION
+      AWS_REGION: "ap-south-1"
 
     steps:
       - name: Checkout code
@@ -39,14 +39,14 @@ jobs:
 
       - name: Upload dependencies to S3
         run: |
-          aws s3 cp dependencies.zip s3://deepen-s3-bucket/dependencies.zip
+          aws s3 cp dependencies.zip s3://myc8-bucket-cicd/dependencies.zip
 
       - name: Update Lambda Layer
         run: |
           LAYER_VERSION=$(aws lambda publish-layer-version \
             --layer-name requestmodulelayer-tf \
             --description "Updated dependencies" \
-            --content S3Bucket=deepen-s3-bucket,S3Key=dependencies.zip \
+            --content S3Bucket=myc8-bucket-cicd,S3Key=dependencies.zip \
             --compatible-runtimes python3.12 \
             --output text \
             --query Version)
