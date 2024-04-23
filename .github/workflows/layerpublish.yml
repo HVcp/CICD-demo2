@@ -1,0 +1,58 @@
+name: CI/CD for Layer Publish
+
+on:
+  push:
+    branches:
+      - devbranch
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: $AWS_REGION
+      #AWS_REGION: "ap-south-1"
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Create directory and zip dependencies
+        run: |
+          mkdir Modules
+          pip install -r requirements.txt --target Modules
+          cd Modules
+          zip -r ../dependencies.zip .
+          cd ..
+
+      - name: Upload dependencies to S3
+        run: |
+          aws s3 cp dependencies.zip s3://deepen-s3-bucket/dependencies.zip
+
+      - name: Update Lambda Layer
+        run: |
+          LAYER_VERSION=$(aws lambda publish-layer-version \
+            --layer-name requestmodulelayer-tf \
+            --description "Updated dependencies" \
+            --content S3Bucket=deepen-s3-bucket,S3Key=dependencies.zip \
+            --compatible-runtimes python3.12 \
+            --output text \
+            --query Version)
+          echo "Printing latest Layer version"  
+          echo LAYER_VERSION
+
+          aws lambda update-function-configuration \
+            --function-name S3LambdaFunction-tf \
+            --layers arn:aws:lambda:ap-south-1:907430767271:layer:requestmodulelayer-tf:$LAYER_VERSION \
