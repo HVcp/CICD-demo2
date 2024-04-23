@@ -3,7 +3,7 @@ name: CI/CD for Layer Publish
 on:
   push:
     branches:
-      - devbranch
+      - main
 
 jobs:
   build:
