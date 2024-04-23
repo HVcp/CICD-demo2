@@ -56,4 +56,4 @@ jobs:
 
           aws lambda update-function-configuration \
             --function-name S3LambdaFunction-tf \
-            --layers arn:aws:lambda:eu-west-1:6546546352751:layer:modulelayer:$LAYER_VERSION \
+            --layers arn:aws:lambda:eu-west-1:654654635275:layer:modulelayer:$LAYER_VERSION \
