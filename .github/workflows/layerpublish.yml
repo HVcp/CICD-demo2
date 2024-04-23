@@ -45,7 +45,7 @@ jobs:
       - name: Update Lambda Layer
         run: |
           LAYER_VERSION=$(aws lambda publish-layer-version \
-            --layer-name requestmodulelayer-tf \
+            --layer-name modulelayer \
             --description "Updated dependencies" \
             --content S3Bucket=myc8-bucket-cicd,S3Key=dependencies.zip \
             --compatible-runtimes python3.12 \
@@ -56,4 +56,4 @@ jobs:
 
           aws lambda update-function-configuration \
             --function-name S3LambdaFunction-tf \
-            --layers arn:aws:lambda:eu-west-1:6546546352751:layer:requestmodulelayer-tf:$LAYER_VERSION \
+            --layers arn:aws:lambda:eu-west-1:6546546352751:layer:modulelayer:$LAYER_VERSION \
